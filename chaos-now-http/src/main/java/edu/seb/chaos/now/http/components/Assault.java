@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import edu.seb.chaos.now.http.config.HttpSettings;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,37 +28,27 @@ public class Assault {
 
         StringBuilder builder = new StringBuilder(body);
 
-        // Delete first, so we don't delete something we added or something we modified
+        // Delete first, so we don't delete something we added
+        if (this.httpSettings.getAssaultProperties().isDeleteSpecificAttribute()) {
+            builder = this.deleteSpecific(builder);
+        }
         if (this.httpSettings.getAssaultProperties().isDeleteRandomAttribute()) {
-            log.info("Deleting random attribute ...");
-            log.info("Body before delete: {}", builder);
-            builder = this.delete(builder);
-            log.info("Body after delete: {}", builder);
-
+            builder = this.deleteRandom(builder);
         }
 
-        // Add last, so we don't delete something we added or update what we added
+        // Add last, so we don't delete something we added
+        if (this.httpSettings.getAssaultProperties().isInsertSpecificAttribute()) {
+            builder = this.insertSpecific(builder);
+        }
         if (this.httpSettings.getAssaultProperties().isInsertRandomAttribute()) {
-            log.info("Inserting random attribute ...");
-            log.info("Body before insert: {}", builder);
-            builder = this.insert(builder);
-            log.info("Body after insert: {}", builder);
+            builder = this.insertRandom(builder);
         }
 
         return builder.toString();
     }
 
-    private StringBuilder delete(StringBuilder bodyBuilder) {
+    private StringBuilder deleteRandom(StringBuilder bodyBuilder) {
         JsonElement element = this.gson.fromJson(bodyBuilder.toString(), JsonElement.class);
-
-        if (this.httpSettings.getAssaultProperties().isDeleteSpecificAttribute()) {
-            log.info("Deleting specific Attribute ...");
-            element.getAsJsonObject().remove(this.httpSettings.getAssaultProperties().getDeleteAttributeKey());
-            bodyBuilder = new StringBuilder(element.toString());
-            return bodyBuilder;
-        }
-
-        log.info("Deleting random Attribute ...");
         String keyToDelete = this.getKeyToDelete(element.getAsJsonObject().keySet());
         element.getAsJsonObject().remove(keyToDelete);
         bodyBuilder = new StringBuilder(element.toString());
@@ -65,7 +56,26 @@ public class Assault {
         return bodyBuilder;
     }
 
-    private StringBuilder insert(StringBuilder bodyBuilder) {
+    private StringBuilder deleteSpecific(StringBuilder bodyBuilder) {
+        JsonElement element = this.gson.fromJson(bodyBuilder.toString(), JsonElement.class);
+        element.getAsJsonObject().remove(this.httpSettings.getAssaultProperties().getDeleteAttributeKey());
+        bodyBuilder = new StringBuilder(element.toString());
+
+        return bodyBuilder;
+    }
+
+    private StringBuilder insertRandom(StringBuilder bodyBuilder) {
+        final String key = RandomStringUtils.randomAlphanumeric(10);
+        final String value = RandomStringUtils.randomAlphanumeric(10);
+
+        JsonElement jsonElement = this.gson.fromJson(bodyBuilder.toString(), JsonElement.class);
+        jsonElement.getAsJsonObject().addProperty(key, value);
+        bodyBuilder = new StringBuilder(jsonElement.toString());
+
+        return bodyBuilder;
+    }
+
+    private StringBuilder insertSpecific(StringBuilder bodyBuilder) {
         final String key = this.httpSettings.getAssaultProperties().getInsertAttributeKey();
         final String value = this.httpSettings.getAssaultProperties().getInsertAttributeValue();
 
