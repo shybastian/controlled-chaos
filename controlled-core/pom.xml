@@ -27,7 +27,6 @@
             <artifactId>chaos-now-http</artifactId>
             <version>1.0.0</version>
         </dependency>
-
         <!-- Fix -->
         <dependency>
             <groupId>edu.seb</groupId>
@@ -39,8 +38,6 @@
             <artifactId>chaos-fix-circuitbreaker</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <!-- -->
-
         <!-- Core -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -50,7 +47,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-
         <!-- Utils -->
         <dependency>
             <groupId>org.projectlombok</groupId>
