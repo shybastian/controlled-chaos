@@ -1,0 +1,34 @@
+<body>
+<div>
+  <div style="width: 50%; height: 50%; float:left;">
+    <p style="alignment: center">Core Service</p>
+    <div>
+        <button (click)="refreshDataCore()">Refresh</button>
+        <button (click)="activateAttackCore()">Activate Attack</button>
+        <button (click)="deactivateAttackCore()">Deactivate Attack</button>
+      <hr>
+        <p>HTTP attacking is Enabled: {{isHttpEnabled}}</p>
+        <p>HTTP properties is: <br> {{httpProperties | json}}</p>
+      <hr>
+      <button (click)="getCircuitBreakerStateCore()">Get CB State</button>
+      <button (click)="getUserCore()">Get User</button>
+      <button (click)="getUserWithRetryCore()">Get User w Retry</button>
+      <button (click)="getUserWithCircuitCore()">Get User w Circuit</button>
+      <p>Circuit Breaker state is: {{circuitBreakerState}}</p>
+        <p>{{getUserResult | json}}</p>
+    </div>
+  </div>
+  <!-- -->
+  <div style="width: 50%; height: 50%; float:right;">
+    <p style="alignment: center">User Service</p>
+    <div>
+      <button (click)="refreshDataUser()">Refresh</button>
+      <button (click)="activateAttackUser()">Activate Attack</button>
+      <button (click)="deactivateAttackUser()">Deactivate Attack</button>
+      <hr>
+      <p>Exception attacking is Enabled: {{isExceptionEnabled}}</p>
+      <p>Threshold is: {{exceptionThreshold}}</p>
+    </div>
+  </div>
+</div>
+</body>
