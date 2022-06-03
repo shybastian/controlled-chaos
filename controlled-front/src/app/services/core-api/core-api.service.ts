@@ -6,7 +6,7 @@ import {map} from "rxjs/operators";
   providedIn: 'root'
 })
 export class CoreApiService {
-  private REST_API_SERVER = "http://localhost:8081/";
+  private REST_API_SERVER = "http://controlledcore-env.eba-mcwwj7up.eu-central-1.elasticbeanstalk.com";
   private ASSAULT = this.REST_API_SERVER + "assault/http/";
 
   constructor(private httpClient: HttpClient) {}

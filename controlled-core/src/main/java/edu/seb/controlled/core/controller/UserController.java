@@ -8,6 +8,7 @@ import edu.seb.chaos.circuitbreaker.components.CircuitBreaker;
 import edu.seb.chaos.circuitbreaker.components.impl.CircuitBreakerImpl;
 import edu.seb.chaos.circuitbreaker.config.CircuitBreakerConfiguration;
 import edu.seb.chaos.fix.retry.exception.RetriesExceededException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,32 +16,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.concurrent.Callable;
 
 @RestController
 @CrossOrigin
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     @Autowired
     private RestTemplate restTemplate;
 
-    private int id;
-    private final Callable<ResponseEntity<Object>> toCall;
-    //private static final String URL = "Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
-    private static final String URL = "http://localhost:8080/user/";
+    private static final String URL = "http://Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
 
     private CircuitBreaker circuitBreaker = null;
 
     private UserController() {
-        this.toCall = () -> restTemplate.getForEntity(URL + id, Object.class);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getByIdNormal(@PathVariable int id) {
-        this.id = id;
         try {
-            ResponseEntity<Object> response = restTemplate.getForEntity(URL + id, Object.class);
+            final String url = URL + id;
+            ResponseEntity<Object> response = restTemplate.getForEntity(url, Object.class);
             return ResponseEntity.ok(response.getBody());
         } catch (HttpServerErrorException e) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("User-Service temporary unavailable + cause: " + e.getMessage());
@@ -49,7 +48,8 @@ public class UserController {
 
     @GetMapping("/retry/{id}")
     public ResponseEntity<Object> getByIdRetry(@PathVariable int id) throws Exception {
-        Callable<ResponseEntity<Object>> callable = () -> restTemplate.getForEntity(URL + id, Object.class);
+        final String url = URL + id;
+        Callable<ResponseEntity<Object>> callable = () -> restTemplate.getForEntity(url, Object.class);
 
         RetryConfiguration configuration = RetryConfiguration.createConfiguration()
                 .setMaxAttempts(3)
@@ -71,8 +71,9 @@ public class UserController {
             init();
         }
         try {
-            this.id = id;
-            ResponseEntity<Object> result = CircuitBreaker.decorateCallable(circuitBreaker, this.toCall).call();
+            final String url = URL + id;
+            Callable<ResponseEntity<Object>> toCall = () -> restTemplate.getForEntity(url, Object.class);
+            ResponseEntity<Object> result = CircuitBreaker.decorateCallable(circuitBreaker, toCall).call();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             if (e instanceof CircuitBreakerException) {

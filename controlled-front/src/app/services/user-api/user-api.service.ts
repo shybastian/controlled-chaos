@@ -7,7 +7,7 @@ import {map} from "rxjs/operators";
 })
 export class UserApiService {
 
-  private REST_API_SERVER = "http://localhost:8080";
+  private REST_API_SERVER = "http://controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com";
   private ASSAULT = this.REST_API_SERVER + "/assault/exceptions";
 
   constructor(private httpClient: HttpClient) { }
