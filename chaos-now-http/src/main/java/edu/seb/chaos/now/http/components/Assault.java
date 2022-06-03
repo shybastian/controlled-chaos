@@ -36,12 +36,6 @@ public class Assault {
 
         }
 
-        // Updating second, so we don't delete something we modified or update something we added
-        if (this.httpSettings.getAssaultProperties().isModifyRandomAttribute()) {
-            log.info("Modifying random attribute ...");
-
-        }
-
         // Add last, so we don't delete something we added or update what we added
         if (this.httpSettings.getAssaultProperties().isInsertRandomAttribute()) {
             log.info("Inserting random attribute ...");
@@ -69,10 +63,6 @@ public class Assault {
         bodyBuilder = new StringBuilder(element.toString());
 
         return bodyBuilder;
-    }
-
-    private StringBuilder update(StringBuilder bodyBuilder) {
-        return null;
     }
 
     private StringBuilder insert(StringBuilder bodyBuilder) {

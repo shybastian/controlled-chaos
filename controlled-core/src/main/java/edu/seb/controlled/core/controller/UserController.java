@@ -27,7 +27,8 @@ public class UserController {
 
     private int id;
     private final Callable<ResponseEntity<Object>> toCall;
-    private static final String URL = "Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
+    //private static final String URL = "Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
+    private static final String URL = "http://localhost:8080/user/";
 
     private CircuitBreaker circuitBreaker = null;
 

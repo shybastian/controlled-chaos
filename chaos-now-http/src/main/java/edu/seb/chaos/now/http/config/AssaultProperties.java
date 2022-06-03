@@ -14,8 +14,6 @@ public class AssaultProperties {
     private boolean insertSpecificAttribute = false;
     private boolean deleteSpecificAttribute = false;
     private boolean deleteRandomAttribute = false;
-    private boolean modifySpecificAttribute = false;
-    private boolean modifyRandomAttribute = false;
 
     private String insertAttributeKey = "key";
     private String insertAttributeValue = "value";
@@ -35,14 +33,6 @@ public class AssaultProperties {
 
     public void setDeleteRandomAttribute(boolean deleteRandomAttribute) {
         this.deleteRandomAttribute = deleteRandomAttribute;
-    }
-
-    public void setModifySpecificAttribute(boolean modifySpecificAttribute) {
-        this.modifySpecificAttribute = modifySpecificAttribute;
-    }
-
-    public void setModifyRandomAttribute(boolean modifyRandomAttribute) {
-        this.modifyRandomAttribute = modifyRandomAttribute;
     }
 
     public void setInsertAttributeKey(String insertAttributeKey) {

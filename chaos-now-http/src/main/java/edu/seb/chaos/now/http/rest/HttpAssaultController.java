@@ -53,8 +53,6 @@ public class HttpAssaultController {
         properties.setInsertSpecificAttribute(propertiesDto.isInsertSpecificAttribute());
         properties.setDeleteRandomAttribute(propertiesDto.isDeleteRandomAttribute());
         properties.setDeleteSpecificAttribute(propertiesDto.isDeleteSpecificAttribute());
-        properties.setModifyRandomAttribute(propertiesDto.isModifyRandomAttribute());
-        properties.setModifySpecificAttribute(propertiesDto.isModifySpecificAttribute());
 
         properties.setInsertAttributeKey(propertiesDto.getInsertAttributeKey());
         properties.setInsertAttributeValue(propertiesDto.getInsertAttributeValue());
@@ -71,8 +69,6 @@ public class HttpAssaultController {
         propertiesDto.setInsertSpecificAttribute(properties.isInsertSpecificAttribute());
         propertiesDto.setDeleteRandomAttribute(properties.isDeleteRandomAttribute());
         propertiesDto.setDeleteSpecificAttribute(properties.isDeleteSpecificAttribute());
-        propertiesDto.setModifyRandomAttribute(properties.isModifyRandomAttribute());
-        propertiesDto.setModifySpecificAttribute(properties.isModifySpecificAttribute());
 
         propertiesDto.setInsertAttributeKey(properties.getInsertAttributeKey());
         propertiesDto.setInsertAttributeValue(properties.getInsertAttributeValue());
