@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -18,13 +20,16 @@ public class RetryConfiguration {
     private int maxAttempts = DEFAULT_MAX_ATTEMPTS;
     private boolean failAfterMaxAttempts = DEFAULT_FAIL_AFTER_MAX_ATTEMPTS;
 
-    private Class<? extends Throwable>[] retryExceptions = new Class[0];
-    private Class<? extends Throwable>[] ignoreExceptions = new Class[0];
+    private List<Class<? extends Throwable>> retryExceptions = new ArrayList<>();
+    private List<Class<? extends Throwable>> ignoreExceptions = new ArrayList<>();
 
-    private static final Predicate<Throwable> DEFAULT_RECORD_FAILURE_PREDICATE = throwable -> true;
+    public List<Class<? extends Throwable>> getRetryExceptions() {
+        return retryExceptions;
+    }
 
-    @Nullable
-    private Predicate<Throwable> retryOnExceptionPredicate;
+    public List<Class<? extends Throwable>> getIgnoreExceptions() {
+        return ignoreExceptions;
+    }
 
     public int getMaxAttempts() {
         return this.maxAttempts;
@@ -34,11 +39,6 @@ public class RetryConfiguration {
         return failAfterMaxAttempts;
     }
 
-    @Nullable
-    public Predicate<Throwable> getRetryOnExceptionPredicate() {
-        return retryOnExceptionPredicate;
-    }
-
     public static <T> Builder<T> createConfiguration() {
         return new Builder<>();
     }
@@ -46,10 +46,9 @@ public class RetryConfiguration {
     public static class Builder<T> {
         private int maxAttempts = DEFAULT_MAX_ATTEMPTS;
         private boolean failAfterMaxAttempts = DEFAULT_FAIL_AFTER_MAX_ATTEMPTS;
-        @Nullable
-        private Predicate<Throwable> retryOnExceptionPredicate;
-
+        @SuppressWarnings(value = "unchecked")
         private Class<? extends Throwable>[] retryExceptions = new Class[0];
+        @SuppressWarnings(value = "unchecked")
         private Class<? extends Throwable>[] ignoreExceptions = new Class[0];
 
         public Builder() {}
@@ -58,9 +57,8 @@ public class RetryConfiguration {
             RetryConfiguration configuration = new RetryConfiguration();
             configuration.maxAttempts = maxAttempts;
             configuration.failAfterMaxAttempts = failAfterMaxAttempts;
-            configuration.retryExceptions = retryExceptions;
-            configuration.ignoreExceptions = ignoreExceptions;
-            configuration.retryOnExceptionPredicate = createExceptionPredicate();
+            configuration.retryExceptions = Arrays.asList(retryExceptions);
+            configuration.ignoreExceptions = Arrays.asList(ignoreExceptions);
             return configuration;
         }
 
@@ -80,54 +78,17 @@ public class RetryConfiguration {
         }
 
         @SafeVarargs
+        @SuppressWarnings(value = "unchecked")
         public final Builder<T> setRetryExceptions(@Nullable Class<? extends Throwable>... retryExceptions) {
             this.retryExceptions = retryExceptions != null ? retryExceptions : new Class[0];
             return this;
         }
 
         @SafeVarargs
+        @SuppressWarnings(value = "unchecked")
         public final Builder<T> setIgnoreExceptions(@Nullable  Class<? extends Throwable>... ignoreExceptions) {
             this.ignoreExceptions = ignoreExceptions != null ? ignoreExceptions : new Class[0];
             return this;
-        }
-
-        private Predicate<Throwable> createExceptionPredicate() {
-            return createRetryOnExceptionPredicate()
-                    .and(PredicateCreator.createNegatedExceptionsPredicate(ignoreExceptions)
-                            .orElse(DEFAULT_RECORD_FAILURE_PREDICATE));
-        }
-
-        private Predicate<Throwable> createRetryOnExceptionPredicate() {
-            return PredicateCreator.createExceptionsPredicate(retryExceptions)
-                    .map(predicate -> retryOnExceptionPredicate != null ? predicate.or(retryOnExceptionPredicate) : predicate)
-                    .orElseGet(() -> retryOnExceptionPredicate != null ? retryOnExceptionPredicate : DEFAULT_RECORD_FAILURE_PREDICATE);
-        }
-
-        private static class PredicateCreator {
-            @SafeVarargs
-            public static Optional<Predicate<Throwable>> createExceptionsPredicate(
-                    Class<? extends Throwable>... recordExceptions) {
-                return exceptionPredicate(recordExceptions);
-            }
-
-            @SafeVarargs
-            public static Optional<Predicate<Throwable>> createNegatedExceptionsPredicate(
-                    Class<? extends Throwable>... ignoreExceptions) {
-                return exceptionPredicate(ignoreExceptions)
-                        .map(Predicate::negate);
-            }
-
-            private static Optional<Predicate<Throwable>> exceptionPredicate(
-                    Class<? extends Throwable>[] recordExceptions) {
-                return Arrays.stream(recordExceptions)
-                        .distinct()
-                        .map(PredicateCreator::makePredicate)
-                        .reduce(Predicate::or);
-            }
-
-            private static Predicate<Throwable> makePredicate(Class<? extends Throwable> exClass) {
-                return (Throwable e) -> exClass.isAssignableFrom(e.getClass());
-            }
         }
     }
 }

@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import edu.seb.chaos.circuitbreaker.components.CircuitState;
 import edu.seb.chaos.circuitbreaker.exception.CircuitBreakerException;
 import edu.seb.chaos.fix.retry.components.Retry;
+import edu.seb.chaos.fix.retry.components.impl.RetryImpl;
 import edu.seb.chaos.fix.retry.config.RetryConfiguration;
 import edu.seb.chaos.circuitbreaker.components.CircuitBreaker;
 import edu.seb.chaos.circuitbreaker.components.impl.CircuitBreakerImpl;
@@ -33,7 +34,8 @@ public class UserController {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static final String URL = "http://Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
+    //private static final String URL = "http://Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
+    private static final String URL = "http://localhost:8080/user/";
 
     private CircuitBreaker circuitBreaker = null;
 
@@ -92,11 +94,14 @@ public class UserController {
         RetryConfiguration configuration = RetryConfiguration.createConfiguration()
                 .setMaxAttempts(3)
                 .setFailAfterMaxAttempts(true)
-                .setRetryExceptions(RuntimeException.class)
+                .setRetryExceptions(HttpServerErrorException.class, RuntimeException.class)
                 .build();
+        Retry retry = new RetryImpl(configuration);
+        Callable<ResponseEntity<Object>> decorated = retry.decorateCallable(callable);
 
         try {
-            ResponseEntity<Object> result = Retry.decorateCallable(Retry.of(configuration), callable).call();
+            //ResponseEntity<Object> result = Retry.decorateCallable(Retry.of(configuration), callable).call();
+            ResponseEntity<Object> result = decorated.call();
             return ResponseEntity.ok(result);
         } catch (RetriesExceededException ex) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());

@@ -12,10 +12,6 @@ public interface CircuitBreaker {
     void transitionToHalfOpenState();
     void transitionToOpenState();
 
-    default <T> T executeCallable(Callable<T> callable) throws Exception {
-        return decorateCallable(this, callable).call();
-    }
-
     static <T> Callable<T> decorateCallable(CircuitBreaker circuitBreaker, Callable<T> callable) {
         return () -> {
             circuitBreaker.acquirePermission();

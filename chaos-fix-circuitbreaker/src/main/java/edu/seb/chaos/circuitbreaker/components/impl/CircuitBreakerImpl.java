@@ -60,7 +60,7 @@ public class CircuitBreakerImpl implements CircuitBreaker {
         Instant waitUntil = Instant.now().plusSeconds(this.configuration.getWaitSeconds());
         log.info("CircuitBreaker transitioning to OPEN State, blocking calls. Will be HALF-OPEN at: {}", waitUntil.toString());
         this.state.getAndUpdate(newState -> new OpenState(waitUntil));
-        this.circuitState.getAndUpdate(newSTate -> CircuitState.OPEN);
+        this.circuitState.getAndUpdate(newState -> CircuitState.OPEN);
     }
 
     public class ClosedState implements CircuitBreakerState {
