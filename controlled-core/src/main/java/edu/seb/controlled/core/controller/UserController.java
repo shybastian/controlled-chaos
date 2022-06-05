@@ -71,10 +71,7 @@ public class UserController {
             final String url = URL + id;
             ResponseEntity<Object> response = restTemplate.getForEntity(url, Object.class);
             if (response.getBody() != null) {
-                final UserDeserializer userDeserializer = new UserDeserializer();
-                final GsonBuilder builder = new GsonBuilder();
-                builder.registerTypeAdapter(User.class, userDeserializer);
-                final Gson gson = builder.create();
+                final Gson gson = new GsonBuilder().registerTypeAdapter(User.class, new UserDeserializer()).create();
                 User user = gson.fromJson(response.getBody().toString(), User.class);
                 return ResponseEntity.ok(user);
             }
@@ -116,7 +113,7 @@ public class UserController {
         try {
             final String url = URL + id;
             Callable<ResponseEntity<Object>> toCall = () -> restTemplate.getForEntity(url, Object.class);
-            ResponseEntity<Object> result = CircuitBreaker.decorateCallable(circuitBreaker, toCall).call();
+            ResponseEntity<Object> result = this.circuitBreaker.decorateCallable(toCall).call();
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             if (e instanceof CircuitBreakerException) {

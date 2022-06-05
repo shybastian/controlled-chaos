@@ -8,6 +8,7 @@ import edu.seb.chaos.circuitbreaker.exception.CircuitBreakerException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -22,48 +23,56 @@ public class CircuitBreakerImpl implements CircuitBreaker {
         this.state = new AtomicReference<>(new ClosedState(this.configuration.getFailThreshold()));
         this.circuitState = new AtomicReference<>(CircuitState.CLOSED);
     }
-
     @Override
     public CircuitState getState() {
         return this.circuitState.get();
     }
 
     @Override
-    public void acquirePermission() {
+    public <T> Callable<T> decorateCallable(Callable<T> callable) {
+        return () -> {
+            this.acquirePermission();
+            try {
+                T result = callable.call();
+                this.onSuccess();
+                return result;
+            } catch (Exception exception) {
+                this.onError(exception.getCause());
+                throw exception;
+            }
+        };
+    }
+
+    private void acquirePermission() {
         this.state.get().acquirePermission();
     }
 
-    @Override
-    public void onSuccess() {
+    private void onSuccess() {
         this.state.get().onSuccess();
     }
 
-    @Override
-    public void onError(Throwable throwable) {
+    private void onError(Throwable throwable) {
         this.state.get().onError(throwable);
     }
 
-    @Override
-    public void transitionToClosedState() {
+    private void transitionToClosedState() {
         this.state.getAndUpdate(newState -> new ClosedState(this.configuration.getFailThreshold()));
         this.circuitState.getAndUpdate(newSTate -> CircuitState.CLOSED);
     }
 
-    @Override
-    public void transitionToHalfOpenState() {
+    private void transitionToHalfOpenState() {
         this.state.getAndUpdate(newState -> new HalfOpenState(this.configuration.getFailThreshold()));
         this.circuitState.getAndUpdate(newSTate -> CircuitState.HALF_OPEN);
     }
 
-    @Override
-    public void transitionToOpenState() {
+    private void transitionToOpenState() {
         Instant waitUntil = Instant.now().plusSeconds(this.configuration.getWaitSeconds());
         log.info("CircuitBreaker transitioning to OPEN State, blocking calls. Will be HALF-OPEN at: {}", waitUntil.toString());
         this.state.getAndUpdate(newState -> new OpenState(waitUntil));
         this.circuitState.getAndUpdate(newState -> CircuitState.OPEN);
     }
 
-    public class ClosedState implements CircuitBreakerState {
+    private class ClosedState implements CircuitBreakerState {
         private final int permittedNumberOfAttempts;
         private final AtomicInteger currentNumberOfAttempts;
 
@@ -139,23 +148,25 @@ public class CircuitBreakerImpl implements CircuitBreaker {
         }
     }
 
-    public class OpenState implements CircuitBreakerState {
-        private int attempts;
+    private class OpenState implements CircuitBreakerState {
         private final Instant waitUntil;
         public OpenState(Instant waitUntil) {
-            this.attempts = 0;
             this.waitUntil = waitUntil;
         }
 
+        /**
+         * Wait for current time to surpass "waitUntil". If it hasn't, blocks calls.
+         * If it has passed, transitions to HalfOpen state.
+         */
         @Override
         public void acquirePermission() {
             log.info("Acquiring Permission in OPEN State ...");
             if (Instant.now().isAfter(waitUntil)) {
+                log.info("Wait Time has passed ...");
                 log.info("Permission granted for test call. Transitioning to HALF-OPEN!");
                 transitionToHalfOpenState();
             } else {
-                attempts++;
-                log.info("Circuit is in OPEN State! Call was attempt #{}", attempts);
+                log.info("Blocking call because CircuitBreaker is OPEN ...");
                 throw CircuitBreakerException.throwCircuitBreakerIsOpen();
             }
         }
