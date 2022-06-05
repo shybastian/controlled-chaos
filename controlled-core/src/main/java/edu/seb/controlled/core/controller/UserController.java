@@ -99,7 +99,7 @@ public class UserController {
         try {
             //ResponseEntity<Object> result = Retry.decorateCallable(Retry.of(configuration), callable).call();
             ResponseEntity<Object> result = decorated.call();
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.getBody());
         } catch (RetriesExceededException ex) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
         }
@@ -114,7 +114,7 @@ public class UserController {
             final String url = URL + id;
             Callable<ResponseEntity<Object>> toCall = () -> restTemplate.getForEntity(url, Object.class);
             ResponseEntity<Object> result = this.circuitBreaker.decorateCallable(toCall).call();
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result.getBody());
         } catch (Exception e) {
             if (e instanceof CircuitBreakerException) {
                 return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
