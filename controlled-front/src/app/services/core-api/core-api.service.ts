@@ -7,7 +7,7 @@ import {map} from "rxjs/operators";
 })
 export class CoreApiService {
   private REST_API_SERVER = "http://controlledcore-env.eba-mcwwj7up.eu-central-1.elasticbeanstalk.com";
-  private ASSAULT = this.REST_API_SERVER + "assault/http/";
+  private ASSAULT = this.REST_API_SERVER + "/assault/http/";
 
   constructor(private httpClient: HttpClient) {}
 
@@ -31,28 +31,28 @@ export class CoreApiService {
   }
 
   public getCircuitBreakerState() {
-    let url = this.REST_API_SERVER + "user/circuit";
+    let url = this.REST_API_SERVER + "/user/circuit";
     return this.httpClient.get<String>(url).pipe(map(res => {
       return res;
     }));
   }
 
   public getUser() {
-    let url = this.REST_API_SERVER + "user/1";
+    let url = this.REST_API_SERVER + "/user/1";
     return this.httpClient.get<String>(url).pipe(map(res => {
       return res;
     }))
   }
 
   public getUserWithRetry() {
-    let url = this.REST_API_SERVER + "user/retry/1";
+    let url = this.REST_API_SERVER + "/user/retry/1";
     return this.httpClient.get<String>(url).pipe(map(res => {
       return res;
     }))
   }
 
   public getUserWithCircuit() {
-    let url = this.REST_API_SERVER + "user/circuit/1";
+    let url = this.REST_API_SERVER + "/user/circuit/1";
     return this.httpClient.get<String>(url).pipe(map(res => {
       return res;
     }))
