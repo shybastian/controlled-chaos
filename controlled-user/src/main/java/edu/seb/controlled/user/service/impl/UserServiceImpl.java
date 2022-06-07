@@ -6,17 +6,18 @@ import edu.seb.controlled.user.exception.BusinessException;
 import edu.seb.controlled.user.repository.UserRepository;
 import edu.seb.controlled.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
 @Targetable
 @Service
 public class UserServiceImpl implements UserService {
-    //private final UserRepository userRepository;
     private final List<User> userList;
-
     public UserServiceImpl() {
         this.userList = new ArrayList<>();
         User user = new User();
@@ -61,9 +62,6 @@ public class UserServiceImpl implements UserService {
         if (user.getLastName() == null) {
             throw new BusinessException("Invalid Last Name");
         }
-//        if (this.userRepository.existsByUsername(user.getUsername())){
-//            throw new BusinessException("Username already exists");
-//        }
         this.userList.add(user);
         return user;
     }

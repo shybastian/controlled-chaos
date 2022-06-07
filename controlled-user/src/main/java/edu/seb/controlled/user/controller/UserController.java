@@ -6,7 +6,6 @@ import edu.seb.controlled.user.mapper.UserMapper;
 import edu.seb.controlled.user.mapper.to.UserTO;
 import edu.seb.controlled.user.service.KillableUserService;
 import edu.seb.controlled.user.service.UserService;
-import edu.seb.controlled.user.service.impl.KillableUserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

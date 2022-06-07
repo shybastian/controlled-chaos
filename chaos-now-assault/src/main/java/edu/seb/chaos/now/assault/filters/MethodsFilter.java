@@ -15,23 +15,20 @@
  */
 package edu.seb.chaos.now.assault.filters;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.support.StaticMethodMatcher;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.web.context.support.RequestHandledEvent;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
-// https://datamify.com/spring/how-to-hook-into-spring-bean-lifecycle/
-public class SpringHookMethodsFilter extends StaticMethodMatcher {
+@Slf4j
+public class MethodsFilter extends StaticMethodMatcher {
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
+        log.info("Applied Advice on method: {}, from class: {}", method.getName(), targetClass.getName());
         String name = method.getName();
-        return !name.matches("postProcess.*Initialization")
-                && (!name.equals("onApplicationEvent") || Arrays.equals(method.getParameterTypes(), new Object[]{RequestHandledEvent.class}))
-                && !FactoryBean.class.isAssignableFrom(targetClass);
+        return !name.matches("init") && !name.matches("destroy");
     }
 
-    public static SpringHookMethodsFilter INSTANCE = new SpringHookMethodsFilter();
+    public static MethodsFilter INSTANCE = new MethodsFilter();
 }

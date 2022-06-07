@@ -1,6 +1,6 @@
 package edu.seb.chaos.now.assault.advice;
 
-import edu.seb.chaos.now.assault.components.ExceptionAssaultRequestScope;
+import edu.seb.chaos.now.assault.components.ExceptionAssaultInvoker;
 import lombok.RequiredArgsConstructor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -10,7 +10,7 @@ import org.springframework.aop.aspectj.MethodInvocationProceedingJoinPoint;
 
 @RequiredArgsConstructor
 public class Advice implements MethodInterceptor {
-    private final ExceptionAssaultRequestScope requestScope;
+    private final ExceptionAssaultInvoker requestScope;
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         MethodInvocationProceedingJoinPoint pjp =
