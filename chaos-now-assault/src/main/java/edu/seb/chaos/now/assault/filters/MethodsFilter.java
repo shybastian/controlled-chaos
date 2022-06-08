@@ -27,7 +27,8 @@ public class MethodsFilter extends StaticMethodMatcher {
     public boolean matches(Method method, Class<?> targetClass) {
         log.info("Applied Advice on method: {}, from class: {}", method.getName(), targetClass.getName());
         String name = method.getName();
-        return !name.matches("init") && !name.matches("destroy");
+        return !name.matches("^init") && !name.matches("destroy")
+                && !name.matches("postProcess.*Initialization");
     }
 
     public static MethodsFilter INSTANCE = new MethodsFilter();
