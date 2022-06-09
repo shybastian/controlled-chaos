@@ -17,7 +17,6 @@ public class ClientInterceptor implements ClientHttpRequestInterceptor {
     private final AssaultUtils assaultUtils;
     private final Assault assault;
 
-
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
 

@@ -10,12 +10,4 @@ public class CircuitBreakerException extends RuntimeException{
         String message = "Call has not been performed. CircuitBreaker is OPEN and awaiting timeout.";
         return new CircuitBreakerException(message);
     }
-
-    public static CircuitBreakerException throwCircuitBreakerIsHalfOpenAndFailedAttempt() {
-        String message = "Call has not been performed. CircuitBreaker is HALF-OPEN.";
-        return new CircuitBreakerException(message);
-    }
-
-
-
 }

@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Random;
 
 @Slf4j
-public class ExceptionAssaultRequestScope {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionAssaultRequestScope.class);
+public class ExceptionAssaultInvoker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionAssaultInvoker.class);
 
     private final Settings settings;
     private final Assault assault;
@@ -20,7 +20,7 @@ public class ExceptionAssaultRequestScope {
     private final Integer LOW = 1;
     private final Integer HIGH = 100;
 
-    public ExceptionAssaultRequestScope(Settings settings) {
+    public ExceptionAssaultInvoker(Settings settings) {
         this.settings = settings;
         this.assault = new ExceptionAssault(new AssaultException());
     }

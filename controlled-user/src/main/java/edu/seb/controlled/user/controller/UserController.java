@@ -6,10 +6,10 @@ import edu.seb.controlled.user.mapper.UserMapper;
 import edu.seb.controlled.user.mapper.to.UserTO;
 import edu.seb.controlled.user.service.KillableUserService;
 import edu.seb.controlled.user.service.UserService;
-import edu.seb.controlled.user.service.impl.KillableUserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,15 +22,12 @@ import java.util.List;
 @CrossOrigin
 @Slf4j
 public class UserController {
-    private final static String RESPONSE_TYPE = "application/json";
-    private final static String ACCEPT_TYPE = "application/json";
-
     private final UserService userService;
     private final KillableUserService killableUserService;
 
     private final UserMapper userMapper;
 
-    @GetMapping(value = "/{id}", produces = RESPONSE_TYPE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getUserById(@PathVariable Long id) {
         try {
             log.info("Received GET Reqs with id: {}", id);
@@ -43,7 +40,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(value ="/{id}/kill", produces = RESPONSE_TYPE)
+    @GetMapping(value ="/{id}/kill", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getUserByIdKill(@PathVariable Long id) {
         try {
             log.info("Received Kill request.");
@@ -54,7 +51,7 @@ public class UserController {
         return ResponseEntity.ok("Kill didn't work.");
     }
 
-    @GetMapping(produces = RESPONSE_TYPE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<UserTO> getAll() {
         final List<UserTO> userTOList = new ArrayList<>();
         final List<User> userList = this.userService.findAll();
@@ -64,7 +61,7 @@ public class UserController {
         return userTOList;
     }
 
-    @PostMapping(consumes = ACCEPT_TYPE, produces = RESPONSE_TYPE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> insertUser(@RequestBody UserTO userTO) {
         try {
             if (userTO != null) {

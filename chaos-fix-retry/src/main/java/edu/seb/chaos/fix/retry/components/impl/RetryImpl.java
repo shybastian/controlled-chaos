@@ -5,71 +5,84 @@ import edu.seb.chaos.fix.retry.config.RetryConfiguration;
 import edu.seb.chaos.fix.retry.exception.RetriesExceededException;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
 @Slf4j
-public class RetryImpl<T> implements Retry {
+public class RetryImpl implements Retry {
 
-    private final RetryConfiguration properties;
+    private final RetryConfiguration configuration;
     private final int maxAttempts;
-    private final Predicate<Throwable> exceptionPredicate;
 
-    public RetryImpl(RetryConfiguration properties) {
-        this.properties = properties;
-        this.maxAttempts = this.properties.getMaxAttempts();
-        this.exceptionPredicate = this.properties.getRetryOnExceptionPredicate();
+    private final List<Class<? extends Throwable>> retryExceptions;
+    private final List<Class<? extends Throwable>> ignoreExceptions;
+
+    public RetryImpl(RetryConfiguration configuration) {
+        this.configuration = configuration;
+        this.maxAttempts = this.configuration.getMaxAttempts();
+        this.retryExceptions = this.configuration.getRetryExceptions();
+        this.ignoreExceptions = this.configuration.getIgnoreExceptions();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Decision<T> decision() {
-        return new DecisionImpl();
+    public <T> Callable<T> decorateCallable(Callable<T> callable) {
+        return () -> {
+            Retry.Decision decision = new DecisionImpl();
+            do {
+                try {
+                    T result = callable.call();
+                    return result;
+                } catch (Exception e) {
+                    decision.onException(e);
+                }
+            } while (true);
+        };
     }
 
-    public final class DecisionImpl implements Retry.Decision<T> {
+    public final class DecisionImpl implements Retry.Decision {
         private Integer attempts = 0;
         private DecisionImpl() {}
 
         @Override
-        public void onComplete() {
-            if (attempts > maxAttempts) {
-                throw RetriesExceededException.throwRetryExceededOnCompleteException(maxAttempts);
-            }
-            log.info("Retry completed in: {} attempts.", attempts);
-        }
-
-        @Override
-        public boolean isContinue() {
-            return true;
-        }
-
-        @Override
         public void onException(Exception exception) throws Exception {
-            if (exceptionPredicate != null && exceptionPredicate.test(exception)) {
+            if (isIgnoreException(exception)) {
+                this.sleep();
+                return;
+            }
+            if (isRetryException(exception)) {
                 log.info("Encountered retryable exception of type: {} in retry #{}.",
                         exception.getClass().getSimpleName(), attempts);
                 attempts++;
-                if (attempts > maxAttempts && properties.isFailAfterMaxAttempts()) {
+                if (attempts > maxAttempts && configuration.isFailAfterMaxAttempts()) {
                     throw RetriesExceededException.throwRetryExceededOnExceptionException(maxAttempts);
                 }
-                try {
-                    Thread.sleep(1000L);
-                } catch (InterruptedException ex) {
-                    //
-                }
+                this.sleep();
             } else {
-                // Exception was not in retry/ignore Exceptions list
+                // Exception was not in retry/ignore list so throw it
                 throw exception;
             }
         }
 
-        @Override
-        public void onRuntimeException(RuntimeException exception) {
-            if (exceptionPredicate != null && exceptionPredicate.test(exception)) {
-                log.info("Encountered retryable exception in retry #{}. Incrementing and retrying.", attempts);
-                attempts++;
-            } else {
-                throw exception;
+        private boolean isIgnoreException(Exception exception) {
+            for (Class<? extends Throwable> clazz : ignoreExceptions) {
+                if (clazz.isAssignableFrom(exception.getClass())) return true;
+            }
+            return false;
+        }
+
+        private boolean isRetryException(Exception exception) {
+            for (Class<? extends Throwable> clazz: retryExceptions) {
+                if (clazz.isAssignableFrom(exception.getClass())) return true;
+            }
+            return false;
+        }
+
+        private void sleep() {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException ex) {
+                //
             }
         }
     }
