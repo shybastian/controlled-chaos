@@ -2,6 +2,7 @@ package edu.seb.controlled.core.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import edu.seb.chaos.circuitbreaker.components.CircuitState;
 import edu.seb.chaos.circuitbreaker.exception.CircuitBreakerException;
@@ -35,7 +36,7 @@ public class UserController {
     private RestTemplate restTemplate;
 
     private static final String URL = "http://Controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com/user/";
-    // private static final String URL = "http://localhost:8080/user/";
+    //private static final String URL = "http://localhost:8080/user/";
 
     private CircuitBreaker circuitBreaker = null;
 
@@ -78,7 +79,7 @@ public class UserController {
             return ResponseEntity.ok(response.getBody());
         } catch (HttpServerErrorException e) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("User-Service temporary unavailable + cause: " + e.getMessage());
-        } catch (JsonSyntaxException e) {
+        } catch (JsonParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("User-Service returned unmarshallable payload. Cause: " + e.getMessage());
         }
     }

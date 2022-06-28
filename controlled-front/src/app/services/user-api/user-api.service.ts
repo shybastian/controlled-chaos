@@ -8,6 +8,7 @@ import {map} from "rxjs/operators";
 export class UserApiService {
 
   private REST_API_SERVER = "http://controlleduser-env.eba-kcfnqjzn.eu-central-1.elasticbeanstalk.com";
+  //private REST_API_SERVER = "http://localhost:8080";
   private ASSAULT = this.REST_API_SERVER + "/assault/exceptions";
 
   constructor(private httpClient: HttpClient) { }
@@ -33,10 +34,16 @@ export class UserApiService {
 
   public updateExceptionAttackThreshold(threshold: number) {
     let url = this.ASSAULT + "/threshold/" + threshold.valueOf();
-    return this.httpClient.post(url, null).pipe(map(res => {
+    return this.httpClient.post(url, null).subscribe(res => {
+      return res;
+    });
+  }
+
+  public getUserWithKill() {
+    let url = this.REST_API_SERVER + "/user/1/kill";
+    return this.httpClient.get(url).pipe(map(res => {
       return res;
     }));
   }
-
 
 }

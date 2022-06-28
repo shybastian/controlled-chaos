@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {map} from "rxjs/operators";
 
 @Injectable({
@@ -7,6 +7,7 @@ import {map} from "rxjs/operators";
 })
 export class CoreApiService {
   private REST_API_SERVER = "http://controlledcore-env.eba-mcwwj7up.eu-central-1.elasticbeanstalk.com";
+  //private REST_API_SERVER = "http://localhost:8081";
   private ASSAULT = this.REST_API_SERVER + "/assault/http/";
 
   constructor(private httpClient: HttpClient) {}
@@ -18,7 +19,7 @@ export class CoreApiService {
   }
 
   public getHttpAttackProperties() {
-    return this.httpClient.get<String>(this.ASSAULT).pipe(map(res => {
+    return this.httpClient.get<string>(this.ASSAULT).pipe(map(res => {
       return res
     }))
   }
@@ -28,6 +29,14 @@ export class CoreApiService {
     return this.httpClient.post(url, null).pipe(map(res => {
       return res;
     }));
+  }
+
+  public submitNewHttpAttackProperties(payload: string) {
+    let url = this.ASSAULT;
+    const headers = {'Content-Type': 'application/json'}
+    return this.httpClient.post(url, payload, {headers}).subscribe(res => {
+      return res;
+    });
   }
 
   public getCircuitBreakerState() {
@@ -41,7 +50,21 @@ export class CoreApiService {
     let url = this.REST_API_SERVER + "/user/1";
     return this.httpClient.get<String>(url).pipe(map(res => {
       return res;
-    }))
+    }));
+  }
+
+  public getUserAsObject() {
+    let url = this.REST_API_SERVER + "/user/object/1";
+    return this.httpClient.get<String>(url).pipe(map(res => {
+      return res;
+    }));
+  }
+
+  public getUserWithGson() {
+    let url = this.REST_API_SERVER + "/user/gson/1";
+    return this.httpClient.get<String>(url).pipe(map(res => {
+      return res;
+    }));
   }
 
   public getUserWithRetry() {

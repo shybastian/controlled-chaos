@@ -9,13 +9,21 @@
       <hr>
         <p>HTTP attacking is Enabled: {{isHttpEnabled}}</p>
         <p>HTTP properties is: <br> {{httpProperties | json}}</p>
+        <textarea cols="50" rows="10" [(ngModel)]="httpAttackProperties"></textarea>
+      <br>
+        <button (click)="sendHttpAttackProperties()">Modify Properties</button>
       <hr>
       <button (click)="getCircuitBreakerStateCore()">Get CB State</button>
       <button (click)="getUserCore()">Get User</button>
       <button (click)="getUserWithRetryCore()">Get User w Retry</button>
       <button (click)="getUserWithCircuitCore()">Get User w Circuit</button>
       <p>Circuit Breaker state is: {{circuitBreakerState}}</p>
-        <p>{{getUserResult | json}}</p>
+      <hr>
+      <button (click)="getUserAsMappedToUser()">To User Object</button>
+      <button (click)="getUserAsMappedToObject()">To Raw Object</button>
+      <button (click)="getUserAsMappedToUserWithGson()">To User Object W/ custom GSON</button>
+      <hr>
+      <p>{{getUserResult | json}}</p>
     </div>
   </div>
   <!-- -->
@@ -25,9 +33,15 @@
       <button (click)="refreshDataUser()">Refresh</button>
       <button (click)="activateAttackUser()">Activate Attack</button>
       <button (click)="deactivateAttackUser()">Deactivate Attack</button>
+      <button (click)="activateKillable()">Activate Kill</button>
+      <button (click)="deactivateKillable()">Deactivate Kill</button>
       <hr>
       <p>Exception attacking is Enabled: {{isExceptionEnabled}}</p>
+      <p>Kill attacking is Enabled: {{isKillableEnabled}}</p>
       <p>Threshold is: {{exceptionThreshold}}</p>
+      <textarea cols="10" rows="1" [(ngModel)]="changedThreshold"></textarea>
+      <br>
+      <button (click)="updateThreshold()">Change Threshold</button>
     </div>
   </div>
 </div>
