@@ -174,8 +174,7 @@ export class AppComponent {
     this.getUserResult = "";
     this.coreApi.getUserWithRetry().subscribe((res: any) => {
       if (res !== undefined && res !== null) {
-        console.log(res.body)
-        this.getUserResult = res.body;
+        this.getUserResult = res;
       }
     }, error => {
       this.getUserResult = error.error;
@@ -186,7 +185,7 @@ export class AppComponent {
     this.getUserResult = "";
     this.coreApi.getUserWithCircuit().subscribe((res: any) => {
       if (res !== undefined && res !== null) {
-        this.getUserResult = res.body;
+        this.getUserResult = res;
       }
     }, error => {
       this.getUserResult = error.error;
